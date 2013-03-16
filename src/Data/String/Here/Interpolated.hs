@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
 -- | Interpolated here docs
-module Data.String.Here.Interpolated (hereI) where
+module Data.String.Here.Interpolated (i) where
 
 import Data.Functor
 import Data.Maybe
@@ -20,8 +20,8 @@ import Text.Parsec.String
 -- Any expression occurring between @${@ and @}@ (for which the type must have
 -- 'Show' and 'Typeable' instances) will be interpolated into the quoted
 -- string.
-hereI :: QuasiQuoter
-hereI = QuasiQuoter {quoteExp = quoteInterp}
+i :: QuasiQuoter
+i = QuasiQuoter {quoteExp = quoteInterp}
 
 data StringPart = Lit String | Anti (Q Exp)
 
