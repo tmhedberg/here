@@ -14,7 +14,12 @@ cabal-version: >=1.8
 
 library
   hs-source-dirs: src
-  exposed-modules: Data.String.Here
+  exposed-modules:
+    Data.String.Here,
+    Data.String.Here.Interpolated,
+    Data.String.Here.Uninterpolated
+  other-modules:
+    Data.String.Here.Internal
   build-depends:
     base ==4.6.*,
     template-haskell,
