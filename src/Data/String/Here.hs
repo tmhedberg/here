@@ -53,15 +53,18 @@ handleError expStr parseError = error $
 
 combineParts :: [StringPart] -> Q Exp
 combineParts = combine . map toExpQ
-  where toExpQ (Lit s) = stringE s
-        toExpQ (Anti expq) = expq
-        combine = foldr1 $ \subExpr acc -> uInfixE subExpr (varE '(++)) acc
+  where
+    toExpQ (Lit s) = stringE s
+    toExpQ (Anti expq) = expq
+    combine [] = stringE ""
+    combine parts =
+      foldr1 (\subExpr acc -> uInfixE subExpr (varE '(++)) acc) parts
 
 parseInterp :: String -> Either ParseError [StringPart]
 parseInterp = parse p_interp ""
 
 p_interp :: Parser [StringPart]
-p_interp = many1 p_stringPart
+p_interp = manyTill p_stringPart eof
 
 p_stringPart :: Parser StringPart
 p_stringPart = try p_anti <|> p_lit
@@ -80,4 +83,5 @@ p_antiExpr = manyTill anyChar (lookAhead p_antiClose)
          >>= either fail (return . return) . parseExp
 
 p_lit :: Parser StringPart
-p_lit = Lit <$> manyTill anyChar (lookAhead p_antiOpen)
+p_lit = Lit
+    <$> (try (manyTill anyChar $ lookAhead p_antiOpen) <|> manyTill anyChar eof)
