@@ -57,8 +57,7 @@ combineParts = combine . map toExpQ
     toExpQ (Lit s) = stringE s
     toExpQ (Anti expq) = expq
     combine [] = stringE ""
-    combine parts =
-      foldr1 (\subExpr acc -> uInfixE subExpr (varE '(++)) acc) parts
+    combine parts = foldr1 (\subExpr acc -> [|$subExpr ++ $acc|]) parts
 
 parseInterp :: String -> Either ParseError [StringPart]
 parseInterp = parse p_interp ""
