@@ -15,5 +15,9 @@ cabal-version: >=1.8
 library
   hs-source-dirs: src
   exposed-modules: Data.String.Here
-  build-depends: base ==4.6.*, template-haskell
+  build-depends:
+    base ==4.6.*,
+    template-haskell,
+    parsec ==3.1.*,
+    haskell-src-meta ==0.6.*
   ghc-options: -Wall
