@@ -6,6 +6,8 @@ module Data.String.Here (here, hereI, hereLit) where
 
 import Data.Char
 import Data.Functor
+import Data.Maybe
+import Data.Typeable
 
 import Language.Haskell.Meta
 import Language.Haskell.TH
@@ -34,8 +36,9 @@ trimTail s = take (lastNonBlank s) s
 
 -- | Quote a here doc with embedded antiquoted expressions
 --
--- Any expression occurring between @${@ and @}@ (for which the type must have a
--- @Show@ instance) will be interpolated into the quoted string.
+-- Any expression occurring between @${@ and @}@ (for which the type must have
+-- 'Show' and 'Typeable' instances) will be interpolated into the quoted
+-- string.
 hereI :: QuasiQuoter
 hereI = QuasiQuoter {quoteExp = quoteInterp}
 
@@ -55,9 +58,12 @@ combineParts :: [StringPart] -> Q Exp
 combineParts = combine . map toExpQ
   where
     toExpQ (Lit s) = stringE s
-    toExpQ (Anti expq) = expq
+    toExpQ (Anti expq) = [|toString $expq|]
     combine [] = stringE ""
     combine parts = foldr1 (\subExpr acc -> [|$subExpr ++ $acc|]) parts
+
+toString :: (Show a, Typeable a) => a -> String
+toString x = fromMaybe (show x) (cast x)
 
 parseInterp :: String -> Either ParseError [StringPart]
 parseInterp = parse p_interp ""
