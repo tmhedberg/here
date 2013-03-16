@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
 -- | Interpolated here docs
-module Data.String.Here.Interpolated (i) where
+module Data.String.Here.Interpolated (i, iTrim) where
 
 import Data.Functor
 import Data.Maybe
@@ -15,6 +15,8 @@ import Language.Haskell.TH.Quote
 import Text.Parsec
 import Text.Parsec.String
 
+import Data.String.Here.Internal
+
 -- | Quote a here doc with embedded antiquoted expressions
 --
 -- Any expression occurring between @${@ and @}@ (for which the type must have
@@ -22,6 +24,10 @@ import Text.Parsec.String
 -- string.
 i :: QuasiQuoter
 i = QuasiQuoter {quoteExp = quoteInterp}
+
+-- | Like 'i', but with leading and trailing whitespace trimmed
+iTrim :: QuasiQuoter
+iTrim = QuasiQuoter {quoteExp = quoteInterp . trim}
 
 data StringPart = Lit String | Anti (Q Exp)
 
