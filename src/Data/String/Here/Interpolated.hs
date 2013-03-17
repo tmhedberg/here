@@ -40,7 +40,7 @@ makeLenses ''HsChompState
 -- string.
 --
 -- Characters preceded by a backslash are treated literally. This enables the
--- inclusion of a the literal substring @${@ within your quoted text by writing
+-- inclusion of the literal substring @${@ within your quoted text by writing
 -- it as @\\${@. The literal sequence @\\${@ may be written as @\\\\${@.
 i :: QuasiQuoter
 i = QuasiQuoter {quoteExp = quoteInterp}
