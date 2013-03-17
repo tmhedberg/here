@@ -1,6 +1,6 @@
 # `here`
 
-`here` is a package that adds support for multi-line string literals (a.k.a. "here docs") to Haskell via GHC's `QuasiQuotes` extension.
+`here` is a package that adds support for multi-line string literals (a.k.a. "here docs") and string interpolation to Haskell via GHC's `QuasiQuotes` extension.
 
 It includes four quasiquoters:
 
