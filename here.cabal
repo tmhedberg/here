@@ -1,7 +1,7 @@
 name: here
 version: 1.0
-synopsis: Here docs via quasiquotation
-description: Here docs via quasiquotation
+synopsis: Here docs & interpolated strings via quasiquotation
+description: Here docs & interpolated strings via quasiquotation
 license: BSD3
 license-file: LICENSE
 author: Taylor M. Hedberg
