@@ -1,10 +1,12 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE RecordWildCards, TemplateHaskell #-}
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
 -- | Interpolated here docs
 module Data.String.Here.Interpolated (i, iTrim) where
 
 import Control.Applicative hiding ((<|>))
+import Control.Monad.State
+import Control.Lens hiding (parts)
 
 import Data.Maybe
 import Data.Typeable
@@ -17,6 +19,19 @@ import Text.Parsec
 import Text.Parsec.String
 
 import Data.String.Here.Internal
+
+data StringPart = Lit String | Esc Char | Anti (Q Exp)
+
+data HsChompState = HsChompState { _quoteState :: QuoteState
+                                 , _braceCt :: Int
+                                 , _consumed :: String
+                                 }
+
+data QuoteState = None | Single Escaped | Double Escaped
+
+type Escaped = Bool
+
+makeLenses ''HsChompState
 
 -- | Quote a here doc with embedded antiquoted expressions
 --
@@ -33,8 +48,6 @@ i = QuasiQuoter {quoteExp = quoteInterp}
 -- | Like 'i', but with leading and trailing whitespace trimmed
 iTrim :: QuasiQuoter
 iTrim = QuasiQuoter {quoteExp = quoteInterp . trim}
-
-data StringPart = Lit String | Esc Char | Anti (Q Exp)
 
 quoteInterp :: String -> Q Exp
 quoteInterp s = either (handleError s) combineParts (parseInterp s)
@@ -77,8 +90,40 @@ p_antiClose :: Parser String
 p_antiClose = string "}"
 
 p_antiExpr :: Parser (Q Exp)
-p_antiExpr = manyTill anyChar (lookAhead p_antiClose)
+p_antiExpr = p_untilUnbalancedCloseBrace
          >>= either fail (return . return) . parseExp
+
+p_untilUnbalancedCloseBrace :: Parser String
+p_untilUnbalancedCloseBrace = evalStateT go $ HsChompState None 0 ""
+  where
+    go = do
+      c <- lift anyChar
+      consumed %= (c:)
+      HsChompState {..} <- get
+      case _quoteState of
+        None -> case c of
+          '{' -> braceCt += 1 >> go
+          '}' -> if _braceCt > 0
+                   then braceCt -= 1 >> go
+                   else stepBack >> return (reverse $ tail _consumed)
+          '\'' -> quoteState .= Single False >> go
+          '"' -> quoteState .= Double False >> go
+          _ -> go
+        Single False -> do case c of '\\' -> quoteState .= Single True
+                                     '\'' -> quoteState .= None
+                                     _ -> return ()
+                           go
+        Single True -> quoteState .= Single False >> go
+        Double False -> do case c of '\\' -> quoteState .= Double True
+                                     '"' -> quoteState .= None
+                                     _ -> return ()
+                           go
+        Double True -> quoteState .= Double False >> go
+    stepBack = lift $
+      updateParserState
+        (\s@State {..} -> s {statePos = incSourceColumn statePos (-1)})
+        >> getInput
+        >>= setInput . ('}':)
 
 p_esc :: Parser StringPart
 p_esc = Esc <$> (char '\\' *> anyChar)

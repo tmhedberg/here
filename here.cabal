@@ -22,7 +22,9 @@ library
     Data.String.Here.Internal
   build-depends:
     base ==4.6.*,
-    template-haskell,
+    haskell-src-meta ==0.6.*,
+    lens ==3.8.*,
+    mtl ==2.1.*,
     parsec ==3.1.*,
-    haskell-src-meta ==0.6.*
+    template-haskell
   ghc-options: -Wall
