@@ -14,6 +14,17 @@ cabal-version: >=1.8
 
 library
   hs-source-dirs: src
-  exposed-modules: Data.String.Here
-  build-depends: base ==4.6.*, template-haskell
+  exposed-modules:
+    Data.String.Here,
+    Data.String.Here.Interpolated,
+    Data.String.Here.Uninterpolated
+  other-modules:
+    Data.String.Here.Internal
+  build-depends:
+    base ==4.6.*,
+    haskell-src-meta ==0.6.*,
+    lens ==3.8.*,
+    mtl ==2.1.*,
+    parsec ==3.1.*,
+    template-haskell
   ghc-options: -Wall
