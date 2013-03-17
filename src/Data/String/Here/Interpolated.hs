@@ -103,9 +103,8 @@ p_untilUnbalancedCloseBrace = evalStateT go $ HsChompState None 0 ""
       case _quoteState of
         None -> case c of
           '{' -> braceCt += 1 >> go
-          '}' -> if _braceCt > 0
-                   then braceCt -= 1 >> go
-                   else stepBack >> return (reverse $ tail _consumed)
+          '}' | _braceCt > 0 -> braceCt -= 1 >> go
+              | otherwise -> stepBack >> return (reverse $ tail _consumed)
           '\'' -> quoteState .= Single False >> go
           '"' -> quoteState .= Double False >> go
           _ -> go
