@@ -4,7 +4,8 @@
 -- | Interpolated here docs
 module Data.String.Here.Interpolated (i, iTrim) where
 
-import Data.Functor
+import Control.Applicative hiding ((<|>))
+
 import Data.Maybe
 import Data.Typeable
 
@@ -22,6 +23,10 @@ import Data.String.Here.Internal
 -- Any expression occurring between @${@ and @}@ (for which the type must have
 -- 'Show' and 'Typeable' instances) will be interpolated into the quoted
 -- string.
+--
+-- Characters preceded by a backslash are treated literally. This enables the
+-- inclusion of a the literal substring @${@ within your quoted text by writing
+-- it as @\\${@. The literal sequence @\\${@ may be written as @\\\\${@.
 i :: QuasiQuoter
 i = QuasiQuoter {quoteExp = quoteInterp}
 
@@ -29,7 +34,7 @@ i = QuasiQuoter {quoteExp = quoteInterp}
 iTrim :: QuasiQuoter
 iTrim = QuasiQuoter {quoteExp = quoteInterp . trim}
 
-data StringPart = Lit String | Anti (Q Exp)
+data StringPart = Lit String | Esc Char | Anti (Q Exp)
 
 quoteInterp :: String -> Q Exp
 quoteInterp s = either (handleError s) combineParts (parseInterp s)
@@ -45,6 +50,7 @@ combineParts :: [StringPart] -> Q Exp
 combineParts = combine . map toExpQ
   where
     toExpQ (Lit s) = stringE s
+    toExpQ (Esc c) = stringE [c]
     toExpQ (Anti expq) = [|toString $expq|]
     combine [] = stringE ""
     combine parts = foldr1 (\subExpr acc -> [|$subExpr ++ $acc|]) parts
@@ -59,7 +65,7 @@ p_interp :: Parser [StringPart]
 p_interp = manyTill p_stringPart eof
 
 p_stringPart :: Parser StringPart
-p_stringPart = try p_anti <|> p_lit
+p_stringPart = try p_anti <|> p_esc <|> p_lit
 
 p_anti :: Parser StringPart
 p_anti = Anti <$> between p_antiOpen p_antiClose p_antiExpr
@@ -74,6 +80,11 @@ p_antiExpr :: Parser (Q Exp)
 p_antiExpr = manyTill anyChar (lookAhead p_antiClose)
          >>= either fail (return . return) . parseExp
 
+p_esc :: Parser StringPart
+p_esc = Esc <$> (char '\\' *> anyChar)
+
 p_lit :: Parser StringPart
-p_lit = Lit
-    <$> (try (manyTill anyChar $ lookAhead p_antiOpen) <|> manyTill anyChar eof)
+p_lit = fmap Lit $
+  try (litCharTil $ lookAhead p_antiOpen <|> lookAhead (string "\\"))
+    <|> litCharTil eof
+  where litCharTil = manyTill $ noneOf ['\\']
