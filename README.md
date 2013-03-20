@@ -2,12 +2,13 @@
 
 `here` is a package that adds support for multi-line string literals (a.k.a. "here docs") and string interpolation to Haskell via GHC's `QuasiQuotes` extension.
 
-It includes four quasiquoters:
+It includes five quasiquoters:
 
 - `here`: Strips leading and trailing whitespace. This allows you to add a line break after the opening quote bracket, which looks nicer.
 - `hereLit`: Quotes the here doc literally, with no whitespace stripping
 - `i`: Like `hereLit`, but with the ability to interpolate the values of antiquoted Haskell expressions (bracketed by `${` and `}`)
-- `iTrim`: Like `i`, but trimming leading and trailing whitespace as with `here`.
+- `iTrim`: Like `i`, but trimming leading and trailing whitespace as with `here`
+- `template`: Applies string interpolation to a file, as a simple template engine
 
 ## Example
 
