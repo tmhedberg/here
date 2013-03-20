@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
 -- | Interpolated here docs
-module Data.String.Here.Interpolated (i, iTrim) where
+module Data.String.Here.Interpolated (i, iTrim, template) where
 
 import Control.Applicative hiding ((<|>))
 import Control.Monad.State
@@ -48,6 +48,12 @@ i = QuasiQuoter {quoteExp = quoteInterp}
 -- | Like 'i', but with leading and trailing whitespace trimmed
 iTrim :: QuasiQuoter
 iTrim = QuasiQuoter {quoteExp = quoteInterp . trim}
+
+-- | Quote the contents of a file as with 'i'
+--
+-- This enables usage as a simple template engine
+template :: QuasiQuoter
+template = quoteFile i
 
 quoteInterp :: String -> Q Exp
 quoteInterp s = either (handleError s) combineParts (parseInterp s)
