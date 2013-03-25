@@ -9,6 +9,8 @@ import Control.Monad.State
 import Control.Lens hiding (parts)
 
 import Data.Maybe
+import Data.Monoid
+import Data.String
 import Data.Typeable
 
 import Language.Haskell.Meta
@@ -72,10 +74,10 @@ combineParts = combine . map toExpQ
     toExpQ (Esc c) = stringE [c]
     toExpQ (Anti expq) = [|toString $expq|]
     combine [] = stringE ""
-    combine parts = foldr1 (\subExpr acc -> [|$subExpr ++ $acc|]) parts
+    combine parts = foldr1 (\subExpr acc -> [|$subExpr <> $acc|]) parts
 
-toString :: (Show a, Typeable a) => a -> String
-toString x = fromMaybe (show x) (cast x)
+toString :: (Show a, Typeable a, IsString b) => a -> b
+toString x = fromString $ fromMaybe (show x) (cast x)
 
 parseInterp :: String -> Either ParseError [StringPart]
 parseInterp = parse p_interp ""
