@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
 -- | Literal, uninterpolated here docs
-module Data.String.Here.Uninterpolated (here, hereLit) where
+module Data.String.Here.Uninterpolated (here, hereFile, hereLit) where
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
@@ -15,3 +15,7 @@ here = QuasiQuoter {quoteExp = stringE . trim}
 -- | Quote a here doc literally, with no whitespace stripping
 hereLit :: QuasiQuoter
 hereLit = QuasiQuoter {quoteExp = stringE}
+
+-- | Splice a file's contents as a here doc
+hereFile :: QuasiQuoter
+hereFile = quoteFile hereLit
