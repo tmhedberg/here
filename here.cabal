@@ -27,7 +27,6 @@ library
   build-depends:
     base >= 4.5 && < 4.7,
     haskell-src-meta ==0.6.*,
-    lens >= 3.8 && < 3.10,
     mtl ==2.1.*,
     parsec ==3.1.*,
     template-haskell
