@@ -30,9 +30,9 @@ data HsChompState = HsChompState { quoteState :: QuoteState
                                  , prevCharWasIdentChar :: Bool
                                  }
 
-data QuoteState = None | Single Escaped | Double Escaped
+data QuoteState = None | Single EscapeState | Double EscapeState
 
-type Escaped = Bool
+data EscapeState = Escaped | Unescaped
 
 -- | Quote a here doc with embedded antiquoted expressions
 --
@@ -113,20 +113,20 @@ p_untilUnbalancedCloseBrace = evalStateT go $ HsChompState None 0 "" False
           '{' -> incBraceCt 1 >> next
           '}' | braceCt > 0 -> incBraceCt (-1) >> next
               | otherwise -> stepBack >> return (reverse $ tail consumed)
-          '\'' -> unless prevCharWasIdentChar (setQuoteState $ Single False)
+          '\'' -> unless prevCharWasIdentChar (setQuoteState $ Single Unescaped)
                >> next
-          '"' -> setQuoteState (Double False) >> next
+          '"' -> setQuoteState (Double Unescaped) >> next
           _ -> next
-        Single False -> do case c of '\\' -> setQuoteState (Single True)
-                                     '\'' -> setQuoteState None
-                                     _ -> return ()
-                           next
-        Single True -> setQuoteState (Single False) >> next
-        Double False -> do case c of '\\' -> setQuoteState (Double True)
-                                     '"' -> setQuoteState None
-                                     _ -> return ()
-                           next
-        Double True -> setQuoteState (Double False) >> next
+        Single Unescaped -> do case c of '\\' -> setQuoteState (Single Escaped)
+                                         '\'' -> setQuoteState None
+                                         _ -> return ()
+                               next
+        Single Escaped -> setQuoteState (Single Unescaped) >> next
+        Double Unescaped -> do case c of '\\' -> setQuoteState (Double Escaped)
+                                         '"' -> setQuoteState None
+                                         _ -> return ()
+                               next
+        Double Escaped -> setQuoteState (Double Unescaped) >> next
     stepBack = lift $
       updateParserState
         (\s@State {..} -> s {statePos = incSourceColumn statePos (-1)})
