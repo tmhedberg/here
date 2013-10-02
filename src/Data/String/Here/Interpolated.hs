@@ -7,6 +7,7 @@ module Data.String.Here.Interpolated (i, iTrim, template) where
 import Control.Applicative hiding ((<|>))
 import Control.Monad.State
 
+import Data.Char
 import Data.Maybe
 import Data.Monoid
 import Data.String
@@ -26,6 +27,7 @@ data StringPart = Lit String | Esc Char | Anti (Q Exp)
 data HsChompState = HsChompState { quoteState :: QuoteState
                                  , braceCt :: Int
                                  , consumed :: String
+                                 , prevCharWasIdentChar :: Bool
                                  }
 
 data QuoteState = None | Single Escaped | Double Escaped
@@ -99,30 +101,32 @@ p_antiExpr = p_untilUnbalancedCloseBrace
          >>= either fail (return . return) . parseExp
 
 p_untilUnbalancedCloseBrace :: Parser String
-p_untilUnbalancedCloseBrace = evalStateT go $ HsChompState None 0 ""
+p_untilUnbalancedCloseBrace = evalStateT go $ HsChompState None 0 "" False
   where
     go = do
       c <- lift anyChar
       modify $ \st@HsChompState {consumed} -> st {consumed = c:consumed}
       HsChompState {..} <- get
+      let next = setIdentifierCharState c >> go
       case quoteState of
         None -> case c of
-          '{' -> incBraceCt 1 >> go
-          '}' | braceCt > 0 -> incBraceCt (-1) >> go
+          '{' -> incBraceCt 1 >> next
+          '}' | braceCt > 0 -> incBraceCt (-1) >> next
               | otherwise -> stepBack >> return (reverse $ tail consumed)
-          '\'' -> setQuoteState (Single False) >> go
-          '"' -> setQuoteState (Double False) >> go
-          _ -> go
+          '\'' -> when (not prevCharWasIdentChar) (setQuoteState $ Single False)
+               >> next
+          '"' -> setQuoteState (Double False) >> next
+          _ -> next
         Single False -> do case c of '\\' -> setQuoteState (Single True)
                                      '\'' -> setQuoteState None
                                      _ -> return ()
-                           go
-        Single True -> setQuoteState (Single False) >> go
+                           next
+        Single True -> setQuoteState (Single False) >> next
         Double False -> do case c of '\\' -> setQuoteState (Double True)
                                      '"' -> setQuoteState None
                                      _ -> return ()
-                           go
-        Double True -> setQuoteState (Double False) >> go
+                           next
+        Double True -> setQuoteState (Double False) >> next
     stepBack = lift $
       updateParserState
         (\s@State {..} -> s {statePos = incSourceColumn statePos (-1)})
@@ -131,6 +135,9 @@ p_untilUnbalancedCloseBrace = evalStateT go $ HsChompState None 0 ""
     incBraceCt n = modify $ \st@HsChompState {braceCt} ->
       st {braceCt = braceCt + n}
     setQuoteState qs = modify $ \st -> st {quoteState = qs}
+    setIdentifierCharState c = modify $ \st ->
+      st
+        {prevCharWasIdentChar = or [isLetter c, isDigit c, c == '_', c == '\'']}
 
 p_esc :: Parser StringPart
 p_esc = Esc <$> (char '\\' *> anyChar)
