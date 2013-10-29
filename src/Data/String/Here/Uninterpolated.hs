@@ -18,4 +18,4 @@ hereLit = QuasiQuoter {quoteExp = stringE}
 
 -- | Splice a file's contents as a here doc
 hereFile :: QuasiQuoter
-hereFile = quoteFile hereLit
+hereFile = quoteDependentFile hereLit

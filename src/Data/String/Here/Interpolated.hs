@@ -54,7 +54,7 @@ iTrim = QuasiQuoter {quoteExp = quoteInterp . trim}
 --
 -- This enables usage as a simple template engine
 template :: QuasiQuoter
-template = quoteFile i
+template = quoteDependentFile i
 
 quoteInterp :: String -> Q Exp
 quoteInterp s = either (handleError s) combineParts (parseInterp s)
