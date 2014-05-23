@@ -27,7 +27,7 @@ library
   build-depends:
     base >= 4.5 && < 4.8,
     haskell-src-meta ==0.6.*,
-    mtl ==2.1.*,
+    mtl >=2.1 && < 2.3,
     parsec ==3.1.*,
     template-haskell
   ghc-options: -Wall
