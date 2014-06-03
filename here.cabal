@@ -6,7 +6,7 @@ license: BSD3
 license-file: LICENSE
 author: Taylor M. Hedberg
 maintainer: t@tmh.cc
-copyright: ©2013 Taylor M. Hedberg
+copyright: ©2013 Taylor M. Hedberg, ©2014 Google Inc.
 homepage: https://github.com/tmhedberg/here
 category: Data
 build-type: Simple
