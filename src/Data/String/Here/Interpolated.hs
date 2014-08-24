@@ -75,8 +75,8 @@ combineParts = combine . map toExpQ
     combine [] = stringE ""
     combine parts = foldr1 (\subExpr acc -> [|$subExpr <> $acc|]) parts
 
-toString :: (Show a, Typeable a, IsString b) => a -> b
-toString x = fromString $ fromMaybe (show x) (cast x)
+toString :: (Show a, Typeable a, Typeable b, IsString b) => a -> b
+toString x = fromMaybe (fromString $ show x) (cast x)
 
 parseInterp :: String -> Either ParseError [StringPart]
 parseInterp = parse p_interp ""
