@@ -18,6 +18,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Quote
 
 import Text.Parsec
+import Text.Parsec.Prim
 import Text.Parsec.String
 
 import Data.String.Here.Internal
@@ -129,7 +130,7 @@ p_untilUnbalancedCloseBrace = evalStateT go $ HsChompState None 0 "" False
         Double Escaped -> setQuoteState (Double Unescaped) >> next
     stepBack = lift $
       updateParserState
-        (\s@State {..} -> s {statePos = incSourceColumn statePos (-1)})
+        (\s -> s {statePos = incSourceColumn (statePos s) (-1)})
         >> getInput
         >>= setInput . ('}':)
     incBraceCt n = modify $ \st@HsChompState {braceCt} ->
