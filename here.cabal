@@ -1,5 +1,5 @@
 name: here
-version: 1.2.5
+version: 1.2.6
 synopsis: Here docs & interpolated strings via quasiquotation
 description: Here docs & interpolated strings via quasiquotation
 license: BSD3
