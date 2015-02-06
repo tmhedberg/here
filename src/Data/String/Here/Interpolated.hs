@@ -1,4 +1,4 @@
-{-# LANGUAGE NamedFieldPuns, RecordWildCards, TemplateHaskell #-}
+{-# LANGUAGE NamedFieldPuns, RecordWildCards, TemplateHaskell, FlexibleContexts #-}
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
 -- | Interpolated here docs
