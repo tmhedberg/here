@@ -2,7 +2,9 @@
 
 `here` is a package that adds support for multi-line string literals (a.k.a. "here docs") and string interpolation to Haskell via GHC's `QuasiQuotes` extension.
 
-It includes six quasiquoters:
+The quoted expressions behave like string literals in the source code; that is, they produce values of type `String`, or, with the `OverloadedStrings` language extension enabled, values of type `IsString a => a`.
+
+The package includes six quasiquoters:
 
 - `here`: Strips leading and trailing whitespace. This allows you to add a line break after the opening quote bracket, which looks nicer.
 - `hereLit`: Quotes the here doc literally, with no whitespace stripping
