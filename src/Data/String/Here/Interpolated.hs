@@ -86,7 +86,7 @@ p_interp :: Parser [StringPart]
 p_interp = manyTill p_stringPart eof
 
 p_stringPart :: Parser StringPart
-p_stringPart = try p_anti <|> p_esc <|> p_lit
+p_stringPart = p_anti <|> p_esc <|> p_lit
 
 p_anti :: Parser StringPart
 p_anti = Anti <$> between p_antiOpen p_antiClose p_antiExpr
