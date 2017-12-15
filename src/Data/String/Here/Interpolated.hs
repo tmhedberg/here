@@ -145,6 +145,6 @@ p_esc = Esc <$> (char '\\' *> anyChar)
 
 p_lit :: Parser StringPart
 p_lit = fmap Lit $
-  try (litCharTil $ lookAhead p_antiOpen <|> lookAhead (string "\\"))
+  try (litCharTil $ try $ lookAhead p_antiOpen <|> lookAhead (string "\\"))
     <|> litCharTil eof
   where litCharTil = manyTill $ noneOf ['\\']
