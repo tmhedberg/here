@@ -23,8 +23,19 @@ spec = do
       actual `shouldBe` expect
 
     -- (from: https://github.com/tmhedberg/here#readme)
-    it "should interpolate a String value" $ do
+    it "should interpolate a String expression" $ do
       let foo = "foo"
           expect = "\"foo\", when capitalized, is FOO!"
           actual = [i|"foo", when capitalized, is ${map Char.toUpper foo}!|]
+      actual `shouldBe` expect
+  
+  -- (from: https://github.com/tmhedberg/here#readme)
+  describe "here quote" $ do
+    it "should be here docs" $ do
+      let expect = "Hello world,\n\nI am a multiline here doc!"
+          actual = [here|
+Hello world,
+
+I am a multiline here doc!
+|]
       actual `shouldBe` expect
