@@ -42,7 +42,8 @@ test-suite here-test
     here,
     hspec,
     QuickCheck,
-    bytestring
+    bytestring,
+    text
   other-modules:
     Data.String.HereSpec
   default-language: Haskell2010
