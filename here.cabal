@@ -41,7 +41,6 @@ test-suite here-test
     base >=4.5 && <5,
     here,
     hspec,
-    QuickCheck,
     bytestring,
     text
   other-modules:

@@ -1,6 +1,4 @@
 # `here`
-<!-- NOTE: This status badge is on nwtgck/here -->
-[![Build Status](https://travis-ci.org/nwtgck/here.svg?branch=master)](https://travis-ci.org/nwtgck/here)
 
 `here` is a package that adds support for multi-line string literals (a.k.a. "here docs") and string interpolation to Haskell via GHC's `QuasiQuotes` extension.
 
