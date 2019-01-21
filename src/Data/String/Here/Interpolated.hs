@@ -2,12 +2,13 @@
 {-# OPTIONS_GHC -fno-warn-missing-fields #-}
 
 -- | Interpolated here docs
-module Data.String.Here.Interpolated (i, iTrim, template) where
+module Data.String.Here.Interpolated (i, iTrim, iTrimMargins, template) where
 
 import Control.Applicative hiding ((<|>))
 import Control.Monad.State
 
 import Data.Char
+import Data.List
 import Data.Maybe
 import Data.Monoid
 import Data.String
@@ -50,6 +51,21 @@ i = QuasiQuoter {quoteExp = quoteInterp}
 -- | Like 'i', but with leading and trailing whitespace trimmed
 iTrim :: QuasiQuoter
 iTrim = QuasiQuoter {quoteExp = quoteInterp . trim}
+
+-- | Like 'iTrim', but every lines's leading and trailing whiltespace trimmed
+iTrimMargins :: QuasiQuoter
+iTrimMargins = QuasiQuoter {quoteExp = quoteInterp . trimMargins}
+  where
+    removeLeading = map $ dropWhile (== ' ')
+    reverseLines = map reverse
+
+    unlines' = mconcat . intersperse "\n"
+
+    trimMargins x =
+      let xs = lines x
+          remainTrail = removeLeading xs
+          trimmed = reverseLines . removeLeading $ reverseLines remainTrail
+      in unlines' $ filter (/= "") trimmed
 
 -- | Quote the contents of a file as with 'i'
 --
