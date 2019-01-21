@@ -54,6 +54,17 @@ spec = do
           actual = [i|value is ${val1}|]
       actual `shouldBe` expect
 
+  describe "iTrimMargins quote" $ do
+    it "should trim leading whiltespaces" $ do
+      let expected :: String
+          expected = "Hi\n:D"
+          actual :: String
+          actual = [iTrimMargins|
+            Hi
+            :D
+          |]
+      actual `shouldBe` expected
+
   -- (from: https://github.com/tmhedberg/here#readme)
   describe "here quote" $ do
     it "should be here docs" $ do
