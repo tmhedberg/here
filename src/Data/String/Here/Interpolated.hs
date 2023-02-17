@@ -5,6 +5,7 @@
 module Data.String.Here.Interpolated (i, iTrim, template) where
 
 import Control.Applicative hiding ((<|>))
+import Control.Monad
 import Control.Monad.State
 
 import Data.Char
